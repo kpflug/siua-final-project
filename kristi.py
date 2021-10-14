@@ -1,3 +1,4 @@
+# Billing Engine Module (BEM) and S3
 import pymysql # <== need to install dependencies: pip install pymysql
 import boto3
 from botocore.exceptions import ClientError
@@ -7,11 +8,19 @@ from datetime import datetime
 def createConnection():
   retval = None  
   USER = 'sia-db-user'
-@@ -18,36 +21,32 @@ def getCustomer():
+  HOST = 'sia-db-cluster-instance-1.cosgu9wr5iwp.us-east-1.rds.amazonaws.com'
+  PWD = 'testtest'
+  DB = 'TeamB'
+  retval = pymysql.connect(
+    user = USER,
+    host = HOST,
+    password = PWD,
+    database = DB)
+  return retval
+def getCustomer():
   retval = []
   conn = createConnection()
   with conn.cursor(pymysql.cursors.DictCursor) as cursor:
-    cursor.execute('select * from Customer')
     cursor.execute('select customerID, username,  sum(quantity) as quantity from Customer group by username order by customerID asc;')
     conn.commit()
     retval = cursor.fetchall()
@@ -20,34 +29,17 @@ def createConnection():
 def amountBillable(quantList, amountList): 
    for x in quantList:
      if x >= 1 and x <= 10:
-       x = x*5
-       amountList.append(x)
        amountList.append(x * 5)
      elif x >= 11 and x <= 20:
-       x = x*4
-       amountList.append(x)
        amountList.append(x * 4)
      else:
-       x = x*3
-       amountList.append(x)
-   print(amountList)
        amountList.append(x * 3)
-
+  
 
 def writeFile(custIDList, quantList, userList, amountList):
  with open("billable_customers.txt", "w") as f:
   for x in range(len(custIDList)):
     # print(custIDList[x],quantList[x])
-    custIDList[x] = str(custIDList[x])
-    f.write(custIDList[x].rjust(10,'0'))
-    f.write(' ')
-    f.write(userList[x])
-    f.write(' ')
-    f.write(str(quantList[x]))
-    f.write(' ')
-    amountList[x] = "${:,.2f}". format(amountList[x])
-    f.write(str(amountList[x]))
-    f.write("\n")
       custIDList[x] = str(custIDList[x])
       f.write(f"{custIDList[x].rjust(10,'0')}\t" )
       f.write(f"{userList[x]}\t")
@@ -58,7 +50,11 @@ def writeFile(custIDList, quantList, userList, amountList):
 def upload():
   print('*** Uploading file to S3 ***')
   s3_client = boto3.client('s3')
-@@ -59,6 +58,8 @@ def upload():
+  file = 'billable_customers.txt'
+  bucketName = 'siua-bucket'
+  objectName = 'TeamBees/billable_customers.txt'
+  try:
+    response = s3_client.upload_file(file, bucketName, objectName)
     print(response) # No news is good news.
   except ClientError as e:
     print(e)
@@ -67,13 +63,17 @@ def upload():
 def main():
   #Uses a select statement to pull all DB info into a tuple 
   customerList = getCustomer()
-@@ -73,11 +74,24 @@ def main():
+  #Gets all the infomation in DB
+  dictCustomer = customerList
+  custIDList = []
+  quantList = []
+  userList = []
+  amountList = []
+  #Looping through to put data in correct list
+  for x in dictCustomer:
     quantList.append( x['quantity'])
     userList.append( x['username'])
     custIDList.append( x['customerID'])
-  print(custIDList)
-  print(userList) 
-  print(quantList) 
 
   #Calculate amount billable with quantity
   amountBillable(quantList, amountList)
@@ -94,4 +94,4 @@ def main():
 
 
 if __name__ == "__main__":  
-  main() 
+  main()
