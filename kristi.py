@@ -1,7 +1,9 @@
-# Billing Engine Module (BEM) and S3
+# Billing Engine Module (BEM) and S3 File Upload
+
 import pymysql # <== need to install dependencies: pip install pymysql
-import boto3
+import boto3 #<== need to install dependencies: pip install boto3
 from botocore.exceptions import ClientError
+
 def createConnection():
   retval = None  
   USER = 'sia-db-user'
@@ -14,6 +16,7 @@ def createConnection():
     password = PWD,
     database = DB)
   return retval
+
 def getCustomer():
   retval = []
   conn = createConnection()
@@ -22,6 +25,7 @@ def getCustomer():
     conn.commit()
     retval = cursor.fetchall()
   return retval
+
 def amountBillable(quantList, amountList): 
    for x in quantList:
      if x >= 1 and x <= 10:
@@ -34,6 +38,7 @@ def amountBillable(quantList, amountList):
        x = x*3
        amountList.append(x)
    print(amountList)
+
 def writeFile(custIDList, quantList, userList, amountList):
  with open("billable_customers.txt", "w") as f:
   for x in range(len(custIDList)):
@@ -48,6 +53,7 @@ def writeFile(custIDList, quantList, userList, amountList):
     amountList[x] = "${:,.2f}". format(amountList[x])
     f.write(str(amountList[x]))
     f.write("\n")
+
 def upload():
   print('*** Uploading file to S3 ***')
   s3_client = boto3.client('s3')
@@ -59,25 +65,32 @@ def upload():
     print(response) # No news is good news.
   except ClientError as e:
     print(e)
+
 def main():
   #Uses a select statement to pull all DB info into a tuple 
   customerList = getCustomer()
+
   #Gets all the infomation in DB
   dictCustomer = customerList
   custIDList = []
   quantList = []
   userList = []
   amountList = []
+
   #Looping through to put data in correct list
   for x in dictCustomer:
     quantList.append( x['quantity'])
     userList.append( x['username'])
     custIDList.append( x['customerID'])
-  print(custIDList)
-  print(userList) 
-  print(quantList) 
+
+  #Calculate amount billable with quantity
   amountBillable(quantList, amountList)
+
+  #Writes the data to an S3 file in the correct format
   writeFile(custIDList, quantList, userList, amountList)
+
+  #Uploads the file to S3 inside of the TeamBees Folder
   upload()
+  
 if __name__ == "__main__":  
   main()
