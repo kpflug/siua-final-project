@@ -1,29 +1,8 @@
 # Billing Engine Module (BEM)
-'''
-The BEM is written in Python and calculates the amount to bill a customer. When the dollar
-amounts for all the customers have been calculated, the BEM saves this information to a text
-file located in S3. Customers are aggregated by username preventing duplicate usernames in
-the final output file. The BEM runs every 60 seconds until control+c is entered on the
-console.
 
-The billing rates for the billing engine are represented in Table 2. If a customer has a total of 5
-items their billable amount is: 5 * 5 = $25.00. If a customer has a total of 15 items their billable
-amount is: 15 * 4 = $60.00. If a customer has 22 items, their billable amount is:
-22 * 3 = $66.00.
-
-Quantity Amount
-1-10 $5.00
-11-20 $4.00
->20 $3.00
-'''
-
-#Variables: customer_id, username, quanity, amount
-#three if/then statements to calculuate billing
-
-"""
-Overview: Take the customer quantity variable and put it through a loop of if/then statements to match quanity with the correct dollar amount 
-"""
 import pymysql # <== need to install dependencies: pip install pymysql
+import boto3
+from botocore.exceptions import ClientError
 
 def createConnection():
   retval = None  
@@ -39,15 +18,6 @@ def createConnection():
     database = DB)
   return retval
 
-# def getCustomers(customerId):
-#   retval = []
-#   conn = createConnection()
-#   with conn.cursor(pymysql.cursors.DictCursor) as cursor:
-#     cursor.execute('select * from username where id = %s', (customerId)) # personId is substituted for %s.
-#     conn.commit()
-#     retval = cursor.fetchone()
-#   return retval
-
 def getCustomer():
   retval = []
   conn = createConnection()
@@ -56,9 +26,6 @@ def getCustomer():
     conn.commit()
     retval = cursor.fetchall()
   return retval
-
-def quantityList(customerList):
-  print(customerList)
 
 def amountBillable(quantList, amountList): 
    for x in quantList:
@@ -73,23 +40,42 @@ def amountBillable(quantList, amountList):
        amountList.append(x)
    print(amountList)
 
+def writeFile(custIDList, quantList, userList, amountList):
+
+  # todaysDate = datetime.today().strftime('%m/%d/%Y')
+  # f = open("output.txt", "w")
+  # f.write(f"Today's date is: {todaysDate}.")
+  # f.close()
+
+ with open("billable_customers.txt", "w") as f:
+  for x in range(len(custIDList)):
+    # print(custIDList[x],quantList[x])
+    custIDList[x] = str(custIDList[x])
+    f.write(custIDList[x].rjust(10,'0'))
+    f.write(' ')
+    f.write(userList[x])
+    f.write(' ')
+    f.write(str(quantList[x]))
+    f.write(' ')
+    amountList[x] = "${:,.2f}". format(amountList[x])
+    f.write(str(amountList[x]))
+    f.write("\n")
+
+# def upload():
+#   print('*** Uploading file to S3 ***')
+#   s3_client = boto3.client('s3')
+#   file = 'billable_customers.txt'
+#   bucketName = 'siua-bucket'
+#   objectName = 'TeamBees/billable_customers.txt'
+#   try:
+#     response = s3_client.upload_file(file, bucketName, objectName)
+#     print(response) # No news is good news.
+#   except ClientError as e:
+#     print(e)
+
 def main():
-# # Our customer IDs.
-#   billableCustomersList = ['123', '456', '789'] # Square brackets indicate a list.
-
-# # Store a file from our customer list into S3.
-#   createFileS3(customerList = billableCustomersList, fileHeader = '*** Kristi was here ***', bucketName = 'siua-bucket', keyPath = 'demo/bill_these_customers.txt' )
-
-  #INSERT
-  # id = insertDemo('Aggie', 'Cromwell')
-  # print(id)
-
-  # id = insertPerson('Billy')
-  # print(f"Person Id: {id}.")
-
-  #SELECT
+  #Uses a select statement to pull all DB info into a tuple 
   customerList = getCustomer()
-  print(customerList)
 
   #Gets all the infomation in DB
   dictCustomer = customerList
@@ -97,6 +83,7 @@ def main():
   quantList = []
   userList = []
   amountList = []
+
   #Looping through to put data in correct list
   for x in dictCustomer:
     quantList.append( x['quantity'])
@@ -107,18 +94,7 @@ def main():
   print(quantList) 
   amountBillable(quantList, amountList)
 
-
-  
-
-
-  #append to amount list once the final amounts are totaled 
-  # quanityList(usernames)
-
-  # UPDATE
-  # updatePerson(1, 'Joey Jr.') # Do the update
-  # person = getPerson(1) # Did the update work?
-  # print(person)
-  pass
+  writeFile(custIDList, quantList, userList, amountList)
 
 if __name__ == "__main__":  
   main()
@@ -202,3 +178,54 @@ if __name__ == "__main__":
 #     return retval
 
 
+# import boto3
+# from botocore.exceptions import ClientError
+
+# def upload():
+#   print('*** Uploading file to S3 ***')
+#   s3_client = boto3.client('s3')
+#   file = 'myfile.txt'
+#   bucketName = 'siua-bucket'
+#   objectName = 'kristi/myfile.txt'
+#   try:
+#     response = s3_client.upload_file(file, bucketName, objectName)
+#     print(response) # No news is good news.
+#   except ClientError as e:
+#     print(e)
+
+# def download():
+#   print('*** Downloading file from S3 ***')
+#   BUCKET_NAME = 'siua-bucket' # replace with your bucket name
+#   KEY = 'kristi/myfile.txt' # replace with your object key
+  
+#   s3 = boto3.resource('s3')
+#   s3.Bucket(BUCKET_NAME).download_file(KEY, 'downloaded.txt') #blocking call 
+
+# def delete():
+#   print('*** Deleting file from S3 ***')
+#   s3 = boto3.resource('s3')
+#   s3.Object('siua-bucket', 'kristi/myfile.txt').delete()
+    
+# def main():
+#   # upload()
+#   #download()
+#   delete()
+  
+# if __name__ == "__main__":  
+#     main()
+
+
+#   lines = f.readlines()
+#         for line in lines:
+#             if "PID" in line: 
+#                 pidLines.append(line)
+#         for line in pidLines:
+#             newList = line.split('|')
+#             name = newList[5].lower()
+#             nameList = name.split('^')
+#             formattedName = nameList[1] + ' ' + nameList[0]
+#             ssNum = newList[19]
+#             if patientDict[ssNum].lower() == formattedName:
+#                 print(f"{ssNum} {formattedName.upper()}: OK")
+#             else:
+#                 print(f"{ssNum} {formattedName.upper()}: No Match!!!")
