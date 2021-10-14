@@ -10,7 +10,6 @@ def main():
         checkStr(username)
         quantity = input("Quantity of items: ")
         checkInt(quantity)
-        
         #Inserting the giving information to online DB
         insertCustomer(customerID, username, quantity)
 

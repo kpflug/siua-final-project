@@ -59,7 +59,6 @@ def upload():
   except ClientError as e:
     print(e)
 
-
 def main():
   #Uses a select statement to pull all DB info into a tuple 
   customerList = getCustomer()
