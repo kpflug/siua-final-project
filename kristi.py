@@ -5,18 +5,22 @@ from botocore.exceptions import ClientError
 from time import sleep
 from datetime import datetime
 
+# Initial connection to mySQL workbench DB
 def createConnection():
   retval = None  
   USER = 'sia-db-user'
   HOST = 'sia-db-cluster-instance-1.cosgu9wr5iwp.us-east-1.rds.amazonaws.com'
   PWD = 'testtest'
-  DB = 'TeamB'
+  DB = 'TeamB' #Our teams DB with our table
   retval = pymysql.connect(
     user = USER,
     host = HOST,
     password = PWD,
     database = DB)
   return retval
+
+# Created a query to pull all the data from DB
+# The values get stored in a tuple
 def getCustomer():
   retval = []
   conn = createConnection()
@@ -26,6 +30,9 @@ def getCustomer():
     retval = cursor.fetchall()
   return retval
 
+# Getting all the quantity from list and determining which price range
+# 1-10 =$5.00, 11-20 = $4.00, >20 = $3.00
+# Added all the values to a seperate list
 def amountBillable(quantList, amountList): 
    for x in quantList:
      if x >= 1 and x <= 10:
@@ -35,9 +42,10 @@ def amountBillable(quantList, amountList):
      else:
        amountList.append(x * 3)
   
-
+# Using all our lists, we make a new txt file
+# For Loop to  iterate throw all lists
 def writeFile(custIDList, quantList, userList, amountList):
- with open("billable_customers.txt", "w") as f:
+ with open("billable_customers. iterate throughxt", "w") as f:
   for x in range(len(custIDList)):
     # print(custIDList[x],quantList[x])
       custIDList[x] = str(custIDList[x])
@@ -47,6 +55,7 @@ def writeFile(custIDList, quantList, userList, amountList):
       amountList[x] = "${:,.2f}". format(amountList[x])
       f.write(f"{str(amountList[x])}\t\n")
 
+#Uploading the billable_customer.txt to S3
 def upload():
   print('*** Uploading file to S3 ***')
   s3_client = boto3.client('s3')
@@ -62,14 +71,12 @@ def upload():
 def main():
   #Uses a select statement to pull all DB info into a tuple 
   customerList = getCustomer()
-  #Gets all the infomation in DB
-  dictCustomer = customerList
   custIDList = []
   quantList = []
   userList = []
   amountList = []
   #Looping through to put data in correct list
-  for x in dictCustomer:
+  for x in customerList:
     quantList.append( x['quantity'])
     userList.append( x['username'])
     custIDList.append( x['customerID'])

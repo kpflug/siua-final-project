@@ -10,20 +10,24 @@ def main():
         checkStr(username)
         quantity = input("Quantity of items: ")
         checkInt(quantity)
+
         #Inserting the giving information to online DB
         insertCustomer(customerID, username, quantity)
 
 # The following check for user input
-# If customerID, Quantity are not a int then you will be prompted to enter again       
+# If customerID, Quantity are not a int then you will be prompted to enter again 
+# If empty -> Try again      
 def checkInt(userInput):
     if len(userInput) == 0 or userInput.isalpha():
         print("Invalid try again")
         main()
-# If customer Username is not a string then you will be prompted to enter again       
+# If customer Username is not a string then you will be prompted to enter again  
+# If empty -> Try again      
 def checkStr(userInput):
     if len(userInput) == 0 or userInput.isdigit():
         print("Invalid try again")
         main()    
+
 #Using teamB DB we are inserting customer input to appropriate columns
 def insertCustomer(customerID, username, quantity):
     retval = 0
@@ -33,6 +37,7 @@ def insertCustomer(customerID, username, quantity):
         retval = cursor.lastrowid
     conn.commit()
     return retval
+    
 #Creating connection to mySQL workbench
 def createConnection():
     retval = None  
