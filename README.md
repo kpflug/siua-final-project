@@ -58,7 +58,7 @@ _TeamBees/billable_customers.txt
 - [X] Use Forever to run the BEM as a Forever process on your computer.
 - [X] Store the customer IDs in the text file in ascending order.
 - [ ] Document your solution in the readme.md file in your group directory.
-- [ ] Implement the following validation rules for the UIM. If one or more validation rules fail
+- [X] Implement the following validation rules for the UIM. If one or more validation rules fail
 an appropriate error message is displayed on the console:
   * Customer id must be a valid number
   * Name must only contain letters
