@@ -43,9 +43,9 @@ def amountBillable(quantList, amountList):
        amountList.append(x * 3)
   
 # Using all our lists, we make a new txt file
-# For Loop to  iterate throw all lists
+# For Loop to  iterate through all lists
 def writeFile(custIDList, quantList, userList, amountList):
- with open("billable_customers. iterate throughxt", "w") as f:
+ with open("billable_customers.txt", "w") as f:
   for x in range(len(custIDList)):
     # print(custIDList[x],quantList[x])
       custIDList[x] = str(custIDList[x])

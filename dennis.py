@@ -3,11 +3,11 @@ import pymysql
 def main():
     #Getting Customer information & Loops untill broken
     while True:
-        customerID = input("Enter your ID: ")  # Gettin customer ID
+        customerID = input("Enter your customer ID: ")  # Gettin customer ID
         # Checks if its an integer 
         try:
             customerID = int(customerID)
-            if customerID <= 0 :
+            if customerID <= 0 or customerID.isspace():
                 raise ValueError
         except ValueError:
             print('Enter valid number')
@@ -17,20 +17,23 @@ def main():
         # If empty or is not alphabetic
         # Error and prompted to try again
         try:
-            if len(username) < 1 or not username.isalpha():
+            if username.isnumeric() or len(username) < 1 or username.isspace():
                 raise ValueError
+            if all(x.isalpha() or x.isspace() for x in username):
+                pass
         except ValueError:
-            print('Enter valid name')
+            print('Enter only alphabetical letters and spaces')
             continue
-    
+            
         quantity = input("Quantity of items: ") # Gettin Quantity
         # Checks if its an integer or if > 1000
         try:
             quantity = int(quantity)
-            if quantity <= 0 or quantity > 1000:
+            if quantity <= 0 or quantity > 1000 or quantity.isspace():
                 raise ValueError
         except ValueError:
             print('Enter valid number')
+            continue
             
         #Inserting the giving information to online DB
         insertCustomer(customerID, username, quantity)
