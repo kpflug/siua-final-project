@@ -1,32 +1,40 @@
 import pymysql
 
 def main():
-    #Getting Customer information
-    #Loops untill broken
+    #Getting Customer information & Loops untill broken
     while True:
-        customerID = input("Enter your ID: ")
-        checkInt( customerID)
-        username = input("Enter your First and Last name: ")
-        checkStr(username)
-        quantity = input("Quantity of items: ")
-        checkInt(quantity)
+        customerID = input("Enter your ID: ")  # Gettin customer ID
+        # Checks if its an integer 
+        try:
+            customerID = int(customerID)
+            if customerID <= 0 :
+                raise ValueError
+        except ValueError:
+            print('Enter valid number')
+            continue
 
+        username = input("Enter first and last name: ") # Getting username from customer
+        # If empty or is not alphabetic
+        # Error and prompted to try again
+        try:
+            if len(username) < 1 or not username.isalpha():
+                raise ValueError
+        except ValueError:
+            print('Enter valid name')
+            continue
+    
+        quantity = input("Quantity of items: ") # Gettin Quantity
+        # Checks if its an integer or if > 1000
+        try:
+            quantity = int(quantity)
+            if quantity <= 0 or quantity > 1000:
+                raise ValueError
+        except ValueError:
+            print('Enter valid number')
+            
         #Inserting the giving information to online DB
         insertCustomer(customerID, username, quantity)
 
-# The following check for user input
-# If customerID, Quantity are not a int then you will be prompted to enter again 
-# If empty -> Try again      
-def checkInt(userInput):
-    if len(userInput) == 0 or userInput.isalpha():
-        print("Invalid try again")
-        main()
-# If customer Username is not a string then you will be prompted to enter again  
-# If empty -> Try again      
-def checkStr(userInput):
-    if len(userInput) == 0 or userInput.isdigit():
-        print("Invalid try again")
-        main()    
 
 #Using teamB DB we are inserting customer input to appropriate columns
 def insertCustomer(customerID, username, quantity):
@@ -37,7 +45,7 @@ def insertCustomer(customerID, username, quantity):
         retval = cursor.lastrowid
     conn.commit()
     return retval
-    
+
 #Creating connection to mySQL workbench
 def createConnection():
     retval = None  
