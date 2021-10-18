@@ -1,12 +1,13 @@
-# Billing Engine Module (BEM) and S3
-import pymysql # <== need to install dependencies: pip install pymysql
+# Install and Import Dependencies 
+import pymysql 
 import boto3
 from botocore.exceptions import ClientError
 from time import sleep
 from datetime import datetime
 
-# Initial connection to mySQL workbench DB
+
 def createConnection():
+  """ Establish connection to Amazon Aurora """
   retval = None  
   USER = 'sia-db-user'
   HOST = 'sia-db-cluster-instance-1.cosgu9wr5iwp.us-east-1.rds.amazonaws.com'
@@ -19,9 +20,11 @@ def createConnection():
     database = DB)
   return retval
 
+""" """
 # Created a query to pull all the data from DB
 # The values get stored in a tuple
 def getCustomer():
+  """ A function that uses a cursor to retrieve selected data from Amazon Aurora """
   retval = []
   conn = createConnection()
   with conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -30,10 +33,8 @@ def getCustomer():
     retval = cursor.fetchall()
   return retval
 
-# Getting all the quantity from list and determining which price range
-# 1-10 =$5.00, 11-20 = $4.00, >20 = $3.00
-# Added all the values to a seperate list
 def amountBillable(quantList, amountList): 
+  """ Use a FOR LOOP with IF/ELIF/ELSE to determine the appropriate price based on quantity """
    for x in quantList:
      if x >= 1 and x <= 10:
        amountList.append(x * 5)
@@ -42,9 +43,8 @@ def amountBillable(quantList, amountList):
      else:
        amountList.append(x * 3)
   
-# Using all our lists, we make a new txt file
-# For Loop to  iterate through all lists
 def writeFile(custIDList, quantList, userList, amountList):
+  """ A function that uses a FOR LOOP to iterate through each variable list and write data to a text file """
  with open("billable_customers.txt", "w") as f:
   for x in range(len(custIDList)):
     # print(custIDList[x],quantList[x])
@@ -55,8 +55,8 @@ def writeFile(custIDList, quantList, userList, amountList):
       amountList[x] = "${:,.2f}". format(amountList[x])
       f.write(f"{str(amountList[x])}\t\n")
 
-#Uploading the billable_customer.txt to S3
 def upload():
+  """ Upload the written text file 'billable_customer.txt' to S3 """
   print('*** Uploading file to S3 ***')
   s3_client = boto3.client('s3')
   file = 'billable_customers.txt'
@@ -64,34 +64,36 @@ def upload():
   objectName = 'TeamBees/billable_customers.txt'
   try:
     response = s3_client.upload_file(file, bucketName, objectName)
-    print(response) # No news is good news.
+    print(response)
   except ClientError as e:
     print(e)
 
 def main():
-  #Uses a select statement to pull all DB info into a tuple 
+
   customerList = getCustomer()
+  """ Calls the getCustomer function to retrieve the selected data from Amazon Aurora """
   custIDList = []
   quantList = []
   userList = []
   amountList = []
-  #Looping through to put data in correct list
+
+  # Uses a FOR LOOP to iterate through each data set and append to the correct variable list """
   for x in customerList:
     quantList.append( x['quantity'])
     userList.append( x['username'])
     custIDList.append( x['customerID'])
 
-  #Calculate amount billable with quantity
+  # A function that takes in two parameters, quantList and amountList, to calculate final billing amount
   amountBillable(quantList, amountList)
 
-  #Writes the data to an S3 file in the correct format
+  # A function that takes in four parmeters, custIDList, quantList, userList, and amountList to write data to a text file
   writeFile(custIDList, quantList, userList, amountList)
 
-  #Uploads the file to S3 inside of the TeamBees Folder
+  # Uploads the 'billable_customer.txt' file to S3 inside of the TeamBees folder
   upload()
 
-
-  INTERVAL_SECONDS = 60 # Number of seconds to sleep.
+  # A forever process that meets stretch goal documentation requirements
+  INTERVAL_SECONDS = 60 
   print("To exit press ctrl + c")
   while True:
     timestamp = datetime.today().strftime('%m/%d/%Y %I:%M:%S %p')
