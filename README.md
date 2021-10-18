@@ -14,7 +14,7 @@ offered by AWS. Details for each of these items are described below.
 The UIM is written in Python and accepts user input from the console. The input consists of a
 customer id, username, and quantity. For example:
 
-_Add customer: 123, John Smith, 5
+> Add customer: 123, John Smith, 5
 
 The customer id does not contain leading zeros. The customer name only contains a first and
 last name. The quantity is a positive integer greater than zero, less than 1,000.
@@ -53,25 +53,18 @@ Amazon’s Simple Storage Solution stores text files for all the customers to be
 named siua-billable-customers. Text files are stored in this bucket with the following
 key path schema:
 
-_TeamBees/billable_customers.txt
+> TeamBees/billable_customers.txt
 
 ## Stretch Goals 
 - [X] Use Forever to run the BEM as a Forever process on your computer.
 - [X] Store the customer IDs in the text file in ascending order.
-- [ ] Document your solution in the readme.md file in your group directory.
+- [X] Document your solution in the readme.md file in your group directory.
 - [X] Implement the following validation rules for the UIM. If one or more validation rules fail
 an appropriate error message is displayed on the console:
   * Customer id must be a valid number
   * Name must only contain letters
   * Quantity must be a valids number
   * All three fields must be requireds
-
-<!-- ## Usage example
-
-A few motivating and useful examples of how your product can be used. Spice this up with code blocks and potentially more screenshots.
-
-_For more examples and usage, please refer to the [Wiki][wiki]._ -->
-
 ## Installation
 
 OS X & Linux:
@@ -94,7 +87,6 @@ npm install pm2 -g
 <br>
 <p>Operating system, text editor, and Python release version used for development of this project are listed below -- as well as any program dependencies.</p>
 <br>
-<!-- Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms. -->
 
 ```sh
 Windows 10 Operating System 
