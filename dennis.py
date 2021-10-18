@@ -3,11 +3,13 @@ import pymysql
 def main():
     #Getting Customer information & Loops untill broken
     while True:
-        customerID = input("Enter your customer ID: ")  # Gettin customer ID
+        customerID = input("Enter your customer ID: ")  # Getting customer ID
         # Checks if its an integer 
         try:
+            if customerID.isspace():
+                raise ValueError
             customerID = int(customerID)
-            if customerID <= 0 or customerID.isspace():
+            if customerID <= 0:
                 raise ValueError
         except ValueError:
             print('Enter valid number')
@@ -28,8 +30,10 @@ def main():
         quantity = input("Quantity of items: ") # Gettin Quantity
         # Checks if its an integer or if > 1000
         try:
+            if quantity.isspace():
+                raise ValueError
             quantity = int(quantity)
-            if quantity <= 0 or quantity > 1000 or quantity.isspace():
+            if quantity <= 0 or quantity > 1000:
                 raise ValueError
         except ValueError:
             print('Enter valid number')
