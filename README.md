@@ -82,7 +82,6 @@ pip install pymysql
 pip install boto3
 npm install pm2 -g
 ```
-
 ## Development setup
 <br>
 <p>Operating system, text editor, and Python release version used for development of this project are listed below -- as well as any program dependencies.</p>
