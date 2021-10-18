@@ -88,18 +88,18 @@ npm install pm2 -g
 <p>Operating system, text editor, and Python release version used for development of this project are listed below -- as well as any program dependencies.</p>
 <br>
 
-```sh
+```
 Windows 10 Operating System 
 Visual Studio Code 
 Python 3.10.0
 ```
 
-```sh
+```
 import pymysql
 import boto3
 from botocore.exceptions 
 import ClientError
-from time 
+from time
 import sleep
 from datetime 
 import datetime
