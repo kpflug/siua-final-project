@@ -1,5 +1,6 @@
 # SIUA-FINAL-PROJECT 
-> The Python portion of the final project for Team DataBees, as a graduation requirement for the Step-IT-Up America program. 
+> The Python portion of the final project for Team DataBees, as a graduation requirement for the Step-IT-Up America Program. 
+
 
 # Billing System
 
@@ -65,11 +66,11 @@ an appropriate error message is displayed on the console:
   * Quantity must be a valids number
   * All three fields must be requireds
 
-## Usage example
+<!-- ## Usage example
 
 A few motivating and useful examples of how your product can be used. Spice this up with code blocks and potentially more screenshots.
 
-_For more examples and usage, please refer to the [Wiki][wiki]._
+_For more examples and usage, please refer to the [Wiki][wiki]._ -->
 
 ## Installation
 
@@ -90,8 +91,16 @@ npm install pm2 -g
 ```
 
 ## Development setup
+<br>
+<p>Operating system, text editor, and Python release version used for development of this project are listed below -- as well as any program dependencies.</p>
+<br>
+<!-- Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms. -->
 
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+```sh
+Windows 10 Operating System 
+Visual Studio Code 
+Python 3.10.0
+```
 
 ```sh
 import pymysql
